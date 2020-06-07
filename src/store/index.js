@@ -5,6 +5,9 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    einheiten: [
+      "g", "kg", "l", "ml", "Stück", "Bündel", "Löffel"
+    ]
   },
   mutations: {
   },

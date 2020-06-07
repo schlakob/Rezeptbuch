@@ -4,7 +4,9 @@
       <md-app md-waterfall md-mode="overlap">
         <md-app-toolbar class="md-primary md-large">
           <div class="md-toolbar-row">
-
+            <md-button class="md-icon-button" @click="$router.back()" v-if="!(this.$route.name == 'Home')">
+              <md-icon>arrow_back</md-icon>
+            </md-button>
             <span class="md-title" style="color: white">Rezeptbuch</span>
           </div>
         </md-app-toolbar>

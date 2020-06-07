@@ -1,7 +1,7 @@
 <template>
   <div>
-      <h2>Neues Rezept</h2>
-      <p class="md-caption">Hier kannst du ein neues Rezept anlegen!</p>
+      <h2>Bearbeite Rezept</h2>
+      <p class="md-caption">Hier kannst du dein Rezept bearbeiten!</p>
        <form novalidate class="md-layout">
            <div class="md-layout md-gutter">
                 <div class="md-layout-item md-small-size-100">
@@ -74,47 +74,59 @@
                 </div>
             </div>
        </form>
+       <md-dialog-confirm
+        :md-active.sync="active"
+        md-title="Löschen?"
+        md-content="Willst du das Rezept wirklich löschen? Es gibt keine Möglichkeit dies rückgängig zu machen."
+        md-confirm-text="Ja, löschen"
+        md-cancel-text="Abrechen"
+        @md-confirm="remove()" />
+
+        <md-button class="md-fab md-plain" style="background: #ff5252" @click="active = true">
+            <md-icon>delete</md-icon>
+        </md-button>
   </div>
 </template>
 
 <script>
 import db from './../firebaseInit'
 export default {
-  name: 'Home',
-  data() {
-    return {
-      form: {
-        id: "",
-        titel: "",
-        beschreibung: "",
-        dauer: "",
-        zutaten: [
-          {name: "Mais", menge:"100", einheit:"g"},
-          {name: "Nudeln", menge:"200", einheit:"kg"}
-        ]
-      }
-    };
-  },
-  created() {
-      this.form.id = (Date.now() + Math.random()).toString().split('.').join("")
-  },
-  methods: {
-    removeZutat(index){
-      this.form.zutaten.splice(index, 1);
-    },
-    addZutat(){
-      this.form.zutaten.push({name: "", menge:"", einheit:""})
-    },
-    back(){
-      this.$router.back();
-    },
-    classicModalHide() {
-      this.classicModal = false;
-    },
-    save(){
-      db.collection('rezepte').doc(this.form.id).set(this.form)
-      this.$router.back();
-    }
-  }
+    name: 'Home',
+        data() {
+            return {
+                active: false,
+                form: {}
+            };
+        },
+        async created() {
+            var snapshot = await db.collection('rezepte').doc(this.$route.params.id).get()
+            this.form = snapshot.data()
+        },
+        methods: {
+            removeZutat(index){
+                this.form.zutaten.splice(index, 1);
+            },
+            addZutat(){
+                this.form.zutaten.push({name: "", menge:"", einheit:""})
+            },
+            back(){
+                this.$router.back();
+            },
+            classicModalHide() {
+                this.classicModal = false;
+            },
+            save(){
+                db.collection('rezepte').doc(this.form.id).set(this.form)
+                this.$router.back();
+            },
+            remove(){
+                db.collection('rezepte').doc(this.form.id).delete().then(function() {
+                    console.log("Document successfully deleted!");
+                    this.$router.back();
+                }).catch(function(error) {
+                    console.error("Error removing document: ", error);
+                });
+            }
+        }
 }
 </script>
