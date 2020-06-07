@@ -28,7 +28,7 @@
                 <div class="md-layout-item md-small-size-100">
                   <md-field>
                     <label>Dauer in Minuten</label>
-                    <md-input v-model="form.dauer"></md-input>
+                    <md-input v-model="form.dauer" type="number"></md-input>
                     <span class="md-suffix"> min</span>
                   </md-field>
                 </div>
@@ -124,23 +124,25 @@ export default {
         },
         methods: {
             pickedImg(e) {
-                this.imgFile = e[0]
-                this.removeImg = false
-                let filename = this.imgFile.name
-                if (!filename.lastIndexOf('.' <= 0)) {
-                    alert('Bitte eine richtige Datei auswählen')
+                if (e[0]) {
+                    this.removeImg = false
+                    this.imgFile = e[0]
+                    let filename = this.imgFile.name
+                    if (!filename.lastIndexOf('.' <= 0)) {
+                        alert('Bitte eine richtige Datei auswählen')
+                    }
+                    const fileReader = new FileReader()
+                    fileReader.addEventListener('load', () => {
+                        this.imgPreview = fileReader.result
+                    })
+                    fileReader.readAsDataURL(this.imgFile)
                 }
-                const fileReader = new FileReader()
-                fileReader.addEventListener('load', () => {
-                    this.imgPreview = fileReader.result
-                })
-                fileReader.readAsDataURL(this.imgFile)
             },
             removeZutat(index){
                 this.form.zutaten.splice(index, 1);
             },
             removeImage(index){
-                this.imgPreview = "https://firebasestorage.googleapis.com/v0/b/rezeptbuch-18dac.appspot.com/o/rezeptBilder%2F1.jpg?alt=media&token=2798ea95-df1c-4872-abf9-750b6f0af228"
+                this.imgPreview = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize + ".jpg?alt=media&token=2798ea95-df1c-4872-abf9-750b6f0af228"
                 this.removeImg = true
             },
             addZutat(){
@@ -152,21 +154,25 @@ export default {
             classicModalHide() {
                 this.classicModal = false;
             },
-            save(){
+            async save (){
                 if (this.imgFile) {
-                    firebase.storage().ref('rezeptBilder/' + this.form.id).put(this.imgFile)
-                    this.form.imgUrl = "https://firebasestorage.googleapis.com/v0/b/rezeptbuch-18dac.appspot.com/o/rezeptBilder%2F" + this.form.id + "?alt=media&token=64ccc77f-823e-4c1b-a365-a07d844b4755"
+                    await firebase.storage().ref('rezeptBilder/' + this.form.id).put(this.imgFile)
+                    this.form.imgUrl = this.$store.state.urlImgBase + this.form.id + this.$store.state.urlImgSize + "?alt=media"
                 }else if (this.removeImg){
-                    this.form.imgUrl = "https://firebasestorage.googleapis.com/v0/b/rezeptbuch-18dac.appspot.com/o/rezeptBilder%2F1.jpg?alt=media&token=2798ea95-df1c-4872-abf9-750b6f0af228"
+                    this.form.imgUrl = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize + ".jpg?alt=media"
                 }
-                db.collection('rezepte').doc(this.form.id).set(this.form)
-                // this.$router.push({name: 'View', params: {id: this.$route.params.id}})
-                this.$router.back()
+                await db.collection('rezepte').doc(this.form.id).set(this.form)
+                this.back(); 
+                
             },
-            remove(){
-                db.collection('rezepte').doc(this.form.id).delete().then(function() {
+            async remove(){
+                await firebase.storage().ref('rezeptBilder/' + this.form.id + "_1280x720").delete().then(function() {
+                    console.log("File successfully deleted!");
+                }).catch(function(error) {
+                    console.error("Error removing File: ", error);
+                });
+                await db.collection('rezepte').doc(this.form.id).delete().then(function() {
                     console.log("Document successfully deleted!");
-                    
                 }).catch(function(error) {
                     console.error("Error removing document: ", error);
                 });

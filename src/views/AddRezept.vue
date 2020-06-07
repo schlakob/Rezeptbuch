@@ -23,7 +23,7 @@
                 <div class="md-layout-item md-small-size-100">
                   <md-field>
                     <label>Dauer in Minuten</label>
-                    <md-input v-model="form.dauer"></md-input>
+                    <md-input v-model="form.dauer" type="number"></md-input>
                     <span class="md-suffix"> min</span>
                   </md-field>
                 </div>
@@ -71,6 +71,10 @@
                         <md-textarea name="beschreibung" id="beschreibung" v-model="form.beschreibung"/>
                     </md-field>
                 </div>
+                <div class="md-layout-item md-small-size-100">
+                    <md-progress-spinner md-mode="indeterminate" v-if="spinner"></md-progress-spinner>
+                </div>
+               
                 <div class="md-layout-item md-small-size-50">
                     <md-button class="md-accent" @click="back()">
                         Abbrechen
@@ -82,6 +86,7 @@
                         Speichern
                     </md-button>
                 </div>
+                
             </div>
        </form>
   </div>
@@ -94,7 +99,8 @@ export default {
   name: 'Home',
   data() {
     return {
-      imgPreview: "",
+      spinner: false,
+      imgPreview: this.$store.state.urlImgBase + "1"+ this.$store.state.urlImgSize +".jpg?alt=media",
       imgFile: "",
       form: {
         id: "",
@@ -114,16 +120,22 @@ export default {
   },
   methods: {
     pickedImg(e) {
-        this.imgFile = e[0]
-        let filename = this.imgFile.name
-        if (!filename.lastIndexOf('.' <= 0)) {
-            alert('Bitte eine richtige Datei auswählen')
+        if (e[0]) {
+          this.imgFile = e[0]
+          console.log(this.imgFile)
+          let filename = this.imgFile.name
+          if (!filename.lastIndexOf('.' <= 0)) {
+              alert('Bitte eine richtige Datei auswählen')
+          }
+          const fileReader = new FileReader()
+          fileReader.addEventListener('load', () => {
+              this.imgPreview = fileReader.result
+          })
+          fileReader.readAsDataURL(this.imgFile)
+        }else{
+          this.imgPreview = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize +".jpg?alt=media"
         }
-        const fileReader = new FileReader()
-        fileReader.addEventListener('load', () => {
-            this.imgPreview = fileReader.result
-        })
-        fileReader.readAsDataURL(this.imgFile)
+        
     },
     removeZutat(index){
       this.form.zutaten.splice(index, 1);
@@ -137,14 +149,20 @@ export default {
     classicModalHide() {
       this.classicModal = false;
     },
-    save(){
+    sleep(milliseconds) {
+        return new Promise(resolve => setTimeout(resolve, milliseconds));
+    },
+    async save(){
       if (this.imgFile) {
-        firebase.storage().ref('rezeptBilder/' + this.form.id).put(this.imgFile)
-        this.form.imgUrl = "https://firebasestorage.googleapis.com/v0/b/rezeptbuch-18dac.appspot.com/o/rezeptBilder%2F" + this.form.id + "?alt=media&token=64ccc77f-823e-4c1b-a365-a07d844b4755"
+        await firebase.storage().ref('rezeptBilder/' + this.form.id).put(this.imgFile)
+        this.form.imgUrl = this.$store.state.urlImgBase + this.form.id + this.$store.state.urlImgSize + "?alt=media"
       }else{
-         this.form.imgUrl = "https://firebasestorage.googleapis.com/v0/b/rezeptbuch-18dac.appspot.com/o/rezeptBilder%2F1.jpg?alt=media&token=2798ea95-df1c-4872-abf9-750b6f0af228"
+         this.form.imgUrl = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize +".jpg?alt=media"
       }
       db.collection('rezepte').doc(this.form.id).set(this.form)
+      this.spinner = true
+      await this.sleep(4000)
+      this.spinner = false
       this.$router.push({name: 'Home'})
     }
   }

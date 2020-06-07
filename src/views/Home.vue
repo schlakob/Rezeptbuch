@@ -5,9 +5,13 @@
       <div class="md-layout-item md-small-size-100 md-medium-size-50 md-large-size-33" v-for="(rezept, index) in rezepte" :key="index" style="margin-bottom: 10px; margin-top: 10px" @click="cardSelect(rezept.id)">
         <md-card md-with-hover>
           <md-ripple>
-            <md-card-media>
-              <img :src="rezept.imgUrl" :alt="rezept.titel">
-            </md-card-media>
+            
+              <md-card-media>
+                <div class="aspect-ratio-box">
+                  <img :src="rezept.imgUrl" :alt="rezept.titel" class="content">
+                </div>
+              </md-card-media>
+            
 
             <md-card-header style="margin:0">
               <div class="md-title" >{{rezept.titel}}</div>
@@ -43,3 +47,20 @@
     }
   };
 </script>
+
+<style lang="scss" scoped>
+.aspect-ratio-box {
+    position: relative;
+    overflow: hidden;
+}
+.aspect-ratio-box::after {
+    display: block;
+    content: '';
+    padding-bottom: 56.25%;
+}
+.aspect-ratio-box img {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+</style>

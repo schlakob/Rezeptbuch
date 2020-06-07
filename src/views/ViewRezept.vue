@@ -15,7 +15,7 @@
             </md-card-header>
             <md-card-content>
                 <md-list>
-                    <md-list-item to="/components/list/router/1" v-for="(zutat, index) in rezept.zutaten" :key="index"><p>{{zutat.menge}} {{zutat.einheit}} <b style="text-align:left">{{zutat.name}}</b></p></md-list-item>
+                    <md-list-item v-for="(zutat, index) in rezept.zutaten" :key="index"><p>{{zutat.menge}} {{zutat.einheit}} <b style="text-align:left">{{zutat.name}}</b></p></md-list-item>
                 </md-list>
             </md-card-content>
         </md-card>
