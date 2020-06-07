@@ -5,11 +5,19 @@
        <form novalidate class="md-layout">
            <div class="md-layout md-gutter">
                 <div class="md-layout-item md-small-size-100">
-                <md-field>
-                    <label for="titel">Titel</label>
-                    <md-input name="titel" id="titel" v-model="form.titel"/>
-                </md-field>
+                  <md-field>
+                      <label for="titel">Titel</label>
+                      <md-input name="titel" id="titel" v-model="form.titel"/>
+                  </md-field>
                 </div>
+                <div class="md-layout-item md-small-size-100">
+                  <md-field>
+                    <label>Dauer in Minuten</label>
+                    <md-input v-model="form.dauer"></md-input>
+                    <span class="md-suffix"> min</span>
+                  </md-field>
+                </div>
+
                 <div class="md-layout-item md-size-100 md-body-2" style="text-align:left">
                     <p>Zutaten:</p> 
                 </div>
@@ -54,7 +62,7 @@
                     </md-field>
                 </div>
                 <div class="md-layout-item md-small-size-50">
-                    <md-button class="md-accent" @click="save()">
+                    <md-button class="md-accent" @click="back()">
                         Abbrechen
                     </md-button>
                 </div>
@@ -75,10 +83,11 @@ export default {
   name: 'Home',
   data() {
     return {
-      classicModal: false,
       form: {
+        id: "",
         titel: "",
         beschreibung: "",
+        dauer: "",
         zutaten: [
           {name: "Mais", menge:"100", einheit:"g"},
           {name: "Nudeln", menge:"200", einheit:"kg"}
@@ -89,8 +98,11 @@ export default {
       ]
     };
   },
+  created() {
+      this.form.id = (Date.now() + Math.random()).toString().split('.').join("")
+  },
   methods: {
-      removeZutat(index){
+    removeZutat(index){
       this.form.zutaten.splice(index, 1);
     },
     addZutat(){
@@ -103,7 +115,7 @@ export default {
       this.classicModal = false;
     },
     save(){
-      db.collection('rezepte').add(this.form)
+      db.collection('rezepte').doc(this.form.id).set(this.form)
       this.$router.back();
     }
   }
