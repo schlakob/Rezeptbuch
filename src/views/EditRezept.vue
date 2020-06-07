@@ -5,6 +5,21 @@
        <form novalidate class="md-layout">
            <div class="md-layout md-gutter">
                 <div class="md-layout-item md-small-size-100">
+                  <img :src="imgPreview" style="height: 150px">
+                </div>
+                <div class="md-layout-item ">
+                    <md-field>
+                        <label>Bild</label>
+                        <md-file accept="image/*" v-on:md-change="pickedImg" />
+                    </md-field>
+                </div>
+                <div class="md-layout-item">
+                    <md-button class="md-fab md-mini" style="background: #ff5252" @click="removeImage()">
+                        <md-icon style="color: white">remove</md-icon>
+                    </md-button>
+                </div>
+
+                <div class="md-layout-item md-small-size-100">
                   <md-field>
                       <label for="titel">Titel</label>
                       <md-input name="titel" id="titel" v-model="form.titel"/>
@@ -90,21 +105,43 @@
 
 <script>
 import db from './../firebaseInit'
+import firebase from 'firebase'
 export default {
     name: 'Home',
         data() {
             return {
                 active: false,
+                imgPreview: "",
+                imgFile: "",
+                removeImg: false,
                 form: {}
             };
         },
         async created() {
             var snapshot = await db.collection('rezepte').doc(this.$route.params.id).get()
             this.form = snapshot.data()
+            this.imgPreview = this.form.imgUrl
         },
         methods: {
+            pickedImg(e) {
+                this.imgFile = e[0]
+                this.removeImg = false
+                let filename = this.imgFile.name
+                if (!filename.lastIndexOf('.' <= 0)) {
+                    alert('Bitte eine richtige Datei auswählen')
+                }
+                const fileReader = new FileReader()
+                fileReader.addEventListener('load', () => {
+                    this.imgPreview = fileReader.result
+                })
+                fileReader.readAsDataURL(this.imgFile)
+            },
             removeZutat(index){
                 this.form.zutaten.splice(index, 1);
+            },
+            removeImage(index){
+                this.imgPreview = "https://firebasestorage.googleapis.com/v0/b/rezeptbuch-18dac.appspot.com/o/rezeptBilder%2F1.jpg?alt=media&token=2798ea95-df1c-4872-abf9-750b6f0af228"
+                this.removeImg = true
             },
             addZutat(){
                 this.form.zutaten.push({name: "", menge:"", einheit:""})
@@ -116,16 +153,24 @@ export default {
                 this.classicModal = false;
             },
             save(){
+                if (this.imgFile) {
+                    firebase.storage().ref('rezeptBilder/' + this.form.id).put(this.imgFile)
+                    this.form.imgUrl = "https://firebasestorage.googleapis.com/v0/b/rezeptbuch-18dac.appspot.com/o/rezeptBilder%2F" + this.form.id + "?alt=media&token=64ccc77f-823e-4c1b-a365-a07d844b4755"
+                }else if (this.removeImg){
+                    this.form.imgUrl = "https://firebasestorage.googleapis.com/v0/b/rezeptbuch-18dac.appspot.com/o/rezeptBilder%2F1.jpg?alt=media&token=2798ea95-df1c-4872-abf9-750b6f0af228"
+                }
                 db.collection('rezepte').doc(this.form.id).set(this.form)
-                this.$router.back();
+                // this.$router.push({name: 'View', params: {id: this.$route.params.id}})
+                this.$router.back()
             },
             remove(){
                 db.collection('rezepte').doc(this.form.id).delete().then(function() {
                     console.log("Document successfully deleted!");
-                    this.$router.back();
+                    
                 }).catch(function(error) {
                     console.error("Error removing document: ", error);
                 });
+                this.$router.push("/");
             }
         }
 }

@@ -6,7 +6,7 @@
         <md-card md-with-hover>
           <md-ripple>
             <md-card-media>
-              <img src="https://worldfoodtrip.de/wp-content/uploads/2020/03/Mexican-Food-Trip-klein--1140x620.jpg" :alt="rezept.titel">
+              <img :src="rezept.imgUrl" :alt="rezept.titel">
             </md-card-media>
 
             <md-card-header style="margin:0">

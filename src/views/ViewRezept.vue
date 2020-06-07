@@ -1,6 +1,6 @@
 <template>
   <div>
-    <img src="https://worldfoodtrip.de/wp-content/uploads/2020/03/Mexican-Food-Trip-klein--1140x620.jpg" :alt="rezept.titel" style="margin-bottom: 10px">
+    <img :src="rezept.imgUrl" :alt="rezept.titel" style="margin-bottom: 10px">
     <div class="md-layout md-gutter">
       <div class="md-layout-item md-size-100">
         <p class="md-title">{{rezept.titel}}</p>
