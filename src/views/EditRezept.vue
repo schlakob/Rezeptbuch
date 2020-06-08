@@ -2,7 +2,7 @@
   <div>
       <h2>Bearbeite Rezept</h2>
       <p class="md-caption">Hier kannst du dein Rezept bearbeiten!</p>
-       <form novalidate class="md-layout">
+       <form novalidate class="md-layout" @submit.prevent="validateRezept">
            <div class="md-layout md-gutter">
                 <div class="md-layout-item md-size-100">
                   <img :src="imgPreview" style="height: 150px">
@@ -19,17 +19,20 @@
                     </md-button>
                 </div>
 
-                <div class="md-layout-item md-size-100">
-                  <md-field>
+               <div class="md-layout-item md-size-100" >
+                  <md-field :class="getValidationClass('titel')">
                       <label for="titel">Titel</label>
                       <md-input name="titel" id="titel" v-model="form.titel"/>
+                      <span class="md-error" v-if="!$v.form.titel.required">Der Titel ist Pflichtangabe</span>
+                      <span class="md-error" v-else-if="!$v.form.titel.minlength">Titel ungültig</span>
                   </md-field>
                 </div>
                 <div class="md-layout-item md-size-100">
-                  <md-field>
+                  <md-field :class="getValidationClass('dauer')">
                     <label>Dauer in Minuten</label>
                     <md-input v-model="form.dauer" type="number"></md-input>
                     <span class="md-suffix"> min</span>
+                    <span class="md-error" v-if="!$v.form.dauer.required">Die Dauer ist Pflichtangabe</span>
                   </md-field>
                 </div>
 
@@ -71,18 +74,24 @@
                 </md-button>
 
                 <div class="md-layout-item md-size-100">
-                    <md-field >
+                   <md-field :class="getValidationClass('beschreibung')">
                         <label for="beschreibung">Beschreibung</label>
                         <md-textarea name="beschreibung" id="beschreibung" v-model="form.beschreibung"/>
+                        <span class="md-error" v-if="!$v.form.beschreibung.maxLength">Die Beschreibung ist zu lange</span>
                     </md-field>
                 </div>
+
+                <div class="md-layout-item md-size-100">
+                    <md-progress-spinner md-mode="indeterminate" v-if="spinner"></md-progress-spinner>
+                </div>
+
                 <div class="md-layout-item md-size-50">
                     <md-button class="md-accent" @click="back()">
                         Abbrechen
                     </md-button>
                 </div>
                 <div class="md-layout-item md-size-50">
-                    <md-button class="md-primary md-raised" @click="save()">
+                    <md-button class="md-primary md-raised" type="submit">
                         <md-icon>save</md-icon>
                         Speichern
                     </md-button>
@@ -106,78 +115,124 @@
 <script>
 import db from './../firebaseInit'
 import firebase from 'firebase'
+import { validationMixin } from 'vuelidate'
+import {
+  required,
+  minLength,
+  maxLength
+} from 'vuelidate/lib/validators'
+
 export default {
     name: 'Home',
-        data() {
-            return {
-                active: false,
-                imgPreview: "",
-                imgFile: "",
-                removeImg: false,
-                form: {}
-            };
-        },
-        async created() {
-            var snapshot = await db.collection('rezepte').doc(this.$route.params.id).get()
-            this.form = snapshot.data()
-            this.imgPreview = this.form.imgUrl
-        },
-        methods: {
-            pickedImg(e) {
-                if (e[0]) {
-                    this.removeImg = false
-                    this.imgFile = e[0]
-                    let filename = this.imgFile.name
-                    if (!filename.lastIndexOf('.' <= 0)) {
-                        alert('Bitte eine richtige Datei auswählen')
-                    }
-                    const fileReader = new FileReader()
-                    fileReader.addEventListener('load', () => {
-                        this.imgPreview = fileReader.result
-                    })
-                    fileReader.readAsDataURL(this.imgFile)
+    mixins: [validationMixin],
+    data() {
+        return {
+            spinner: false,
+            active: false,
+            imgPreview: "",
+            imgFile: "",
+            removeImg: false,
+            form: {}
+        };
+    },
+    async created() {
+        var snapshot = await db.collection('rezepte').doc(this.$route.params.id).get()
+        this.form = snapshot.data()
+        this.imgPreview = this.form.imgUrl
+    },
+    methods: {
+        pickedImg(e) {
+            if (e[0]) {
+                this.removeImg = false
+                this.imgFile = e[0]
+                let filename = this.imgFile.name
+                if (!filename.lastIndexOf('.' <= 0)) {
+                    alert('Bitte eine richtige Datei auswählen')
                 }
-            },
-            removeZutat(index){
-                this.form.zutaten.splice(index, 1);
-            },
-            removeImage(index){
-                this.imgPreview = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize + ".jpg?alt=media&token=2798ea95-df1c-4872-abf9-750b6f0af228"
-                this.removeImg = true
-            },
-            addZutat(){
-                this.form.zutaten.push({name: "", menge:"", einheit:""})
-            },
-            back(){
-                this.$router.back();
-            },
-            classicModalHide() {
-                this.classicModal = false;
-            },
-            async save (){
-                if (this.imgFile) {
-                    await firebase.storage().ref('rezeptBilder/' + this.form.id).put(this.imgFile)
-                    this.form.imgUrl = this.$store.state.urlImgBase + this.form.id + this.$store.state.urlImgSize + "?alt=media"
-                }else if (this.removeImg){
-                    this.form.imgUrl = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize + ".jpg?alt=media"
+                const fileReader = new FileReader()
+                fileReader.addEventListener('load', () => {
+                    this.imgPreview = fileReader.result
+                })
+                fileReader.readAsDataURL(this.imgFile)
+            }
+        },
+        removeZutat(index){
+            this.form.zutaten.splice(index, 1);
+        },
+        removeImage(index){
+            this.imgPreview = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize + ".jpg?alt=media&token=2798ea95-df1c-4872-abf9-750b6f0af228"
+            this.removeImg = true
+        },
+        addZutat(){
+            this.form.zutaten.push({name: "", menge:"", einheit:""})
+        },
+        back(){
+            this.$router.back();
+        },
+        classicModalHide() {
+            this.classicModal = false;
+        },
+        sleep(milliseconds) {
+            return new Promise(resolve => setTimeout(resolve, milliseconds));
+        },
+        async save (){
+            if (this.imgFile) {
+                await firebase.storage().ref('rezeptBilder/' + this.form.id).put(this.imgFile)
+                this.form.imgUrl = this.$store.state.urlImgBase + this.form.id + this.$store.state.urlImgSize + "?alt=media"
+            }else if (this.removeImg){
+                this.form.imgUrl = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize + ".jpg?alt=media"
+            }
+            await db.collection('rezepte').doc(this.form.id).set(this.form)
+            this.spinner = true
+            await this.sleep(4000)
+            this.spinner = false
+            this.back(); 
+            
+        },
+        async remove(){
+            await firebase.storage().ref('rezeptBilder/' + this.form.id + "_1280x720").delete().then(function() {
+                console.log("File successfully deleted!");
+            }).catch(function(error) {
+                console.error("Error removing File: ", error);
+            });
+            await db.collection('rezepte').doc(this.form.id).delete().then(function() {
+                console.log("Document successfully deleted!");
+            }).catch(function(error) {
+                console.error("Error removing document: ", error);
+            });
+            this.$router.push("/");
+        },
+        getValidationClass (fieldName) {
+            const field = this.$v.form[fieldName]
+
+            if (field) {
+                return {
+                'md-invalid': field.$invalid && field.$dirty
                 }
-                await db.collection('rezepte').doc(this.form.id).set(this.form)
-                this.back(); 
-                
-            },
-            async remove(){
-                await firebase.storage().ref('rezeptBilder/' + this.form.id + "_1280x720").delete().then(function() {
-                    console.log("File successfully deleted!");
-                }).catch(function(error) {
-                    console.error("Error removing File: ", error);
-                });
-                await db.collection('rezepte').doc(this.form.id).delete().then(function() {
-                    console.log("Document successfully deleted!");
-                }).catch(function(error) {
-                    console.error("Error removing document: ", error);
-                });
-                this.$router.push("/");
+            }
+        },
+        validateRezept () {
+            this.$v.$touch()
+
+            if (!this.$v.$invalid) {
+                this.save()
             }
         }
+    },
+    validations: {
+        form: {
+            titel: {
+                required,
+                minLength: minLength(2),
+                maxLength: maxLength(20)
+            },
+            beschreibung: {
+                maxLength: maxLength(1000)
+            },
+            dauer: {
+                required
+            }
+        }
+    }
 }
 </script>
