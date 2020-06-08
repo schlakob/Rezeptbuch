@@ -4,7 +4,7 @@
       <p class="md-caption">Hier kannst du dein Rezept bearbeiten!</p>
        <form novalidate class="md-layout">
            <div class="md-layout md-gutter">
-                <div class="md-layout-item md-small-size-100">
+                <div class="md-layout-item md-size-100">
                   <img :src="imgPreview" style="height: 150px">
                 </div>
                 <div class="md-layout-item ">
@@ -19,13 +19,13 @@
                     </md-button>
                 </div>
 
-                <div class="md-layout-item md-small-size-100">
+                <div class="md-layout-item md-size-100">
                   <md-field>
                       <label for="titel">Titel</label>
                       <md-input name="titel" id="titel" v-model="form.titel"/>
                   </md-field>
                 </div>
-                <div class="md-layout-item md-small-size-100">
+                <div class="md-layout-item md-size-100">
                   <md-field>
                     <label>Dauer in Minuten</label>
                     <md-input v-model="form.dauer" type="number"></md-input>
@@ -37,7 +37,7 @@
                     <p>Zutaten:</p> 
                 </div>
                              
-                <div class="md-layout-item md-layout md-gutter md-alignment-center-center" v-for="(zutat, index) in form.zutaten" :key="index">
+                <div class="md-layout-item md-size-100 md-layout md-gutter md-alignment-center-center" v-for="(zutat, index) in form.zutaten" :key="index">
                     <div class="md-layout-item md-size-20">
                         <md-field>
                             <label>Menge</label>
@@ -70,18 +70,18 @@
                     <md-icon>add</md-icon>
                 </md-button>
 
-                <div class="md-layout-item md-small-size-100">
+                <div class="md-layout-item md-size-100">
                     <md-field >
                         <label for="beschreibung">Beschreibung</label>
                         <md-textarea name="beschreibung" id="beschreibung" v-model="form.beschreibung"/>
                     </md-field>
                 </div>
-                <div class="md-layout-item md-small-size-50">
+                <div class="md-layout-item md-size-50">
                     <md-button class="md-accent" @click="back()">
                         Abbrechen
                     </md-button>
                 </div>
-                <div class="md-layout-item md-small-size-50">
+                <div class="md-layout-item md-size-50">
                     <md-button class="md-primary md-raised" @click="save()">
                         <md-icon>save</md-icon>
                         Speichern
