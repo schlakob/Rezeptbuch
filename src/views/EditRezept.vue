@@ -193,7 +193,7 @@ export default {
             await firebase.storage().ref('rezeptBilder/' + this.form.id + "_1280x720").delete().then(function() {
                 console.log("File successfully deleted!");
             }).catch(function(error) {
-                console.error("Error removing File: ", error);
+                // console.error("Error removing File: ", error);
             });
             await db.collection('rezepte').doc(this.form.id).delete().then(function() {
                 console.log("Document successfully deleted!");

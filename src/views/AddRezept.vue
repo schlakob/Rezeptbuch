@@ -121,8 +121,7 @@ export default {
         beschreibung: "",
         dauer: "",
         zutaten: [
-          {name: "Mais", menge:"100", einheit:"g"},
-          {name: "Nudeln", menge:"200", einheit:"kg"}
+          {}
         ]
       }
     };
