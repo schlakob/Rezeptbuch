@@ -1,7 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-import firebase from 'firebase'
+import {auth} from './../firebase/auth'
+import {db} from './../firebase/db'
 
 Vue.use(VueRouter)
 
@@ -67,9 +68,8 @@ router.beforeEach((to, from, next) => {
 
   //check for auth guard
   if(to.matched.some(record => record.meta.requiresAuth)) {
-    console.log(firebase.auth().currentUser)
     // Check if NOT logged in
-    if (!firebase.auth().currentUser) {
+    if (!auth.currentUser) {
       next({
         path: '/login',
         query: {
@@ -82,7 +82,7 @@ router.beforeEach((to, from, next) => {
     }
   } else if(to.matched.some(record => record.meta.requiresGuest)) {
     // Check if logged in
-    if (firebase.auth().currentUser) {
+    if (auth.currentUser) {
       next({
         path: '/',
         query: {
@@ -95,13 +95,13 @@ router.beforeEach((to, from, next) => {
     }
   } else if(to.matched.some(record => record.meta.requiresOwner)) {
     //Get Creator of Recipe
-    firebase.firestore().collection('rezepte').doc(to.params.id).get()
+    db.collection('rezepte').doc(to.params.id).get()
     .then(doc => {
          return doc.data().ersteller
     })
     .then(ersteller => {
       // Check if logged in
-      if (!firebase.auth().currentUser) {
+      if (!auth.currentUser) {
         next({
           path: '/login',
           query: {
@@ -109,7 +109,7 @@ router.beforeEach((to, from, next) => {
           }
         });
         //check Ownership
-      }else if (firebase.auth().currentUser.email != ersteller) {
+      }else if (auth.currentUser.email != ersteller) {
         next({
           path: '/',
           query: {
