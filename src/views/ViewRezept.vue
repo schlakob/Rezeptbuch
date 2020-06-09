@@ -32,7 +32,7 @@
 </template>
 
 <script>
-  import db from './../firebaseInit'
+import {db} from './../firebase/db'
   export default {
     data() {
       return {

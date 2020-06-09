@@ -113,8 +113,8 @@
 </template>
 
 <script>
-import db from './../firebaseInit'
-import firebase from 'firebase'
+import {db} from './../firebase/db'
+import {storage} from './../firebase/storage'
 import { validationMixin } from 'vuelidate'
 import {
   required,
@@ -160,7 +160,7 @@ export default {
             this.form.zutaten.splice(index, 1);
         },
         removeImage(index){
-            this.imgPreview = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize + ".jpg?alt=media&token=2798ea95-df1c-4872-abf9-750b6f0af228"
+            this.imgPreview = this.$store.state.ImgDefault
             this.removeImg = true
         },
         addZutat(){
@@ -177,10 +177,18 @@ export default {
         },
         async save (){
             if (this.imgFile) {
-                await firebase.storage().ref('rezeptBilder/' + this.form.id).put(this.imgFile)
-                this.form.imgUrl = this.$store.state.urlImgBase + this.form.id + this.$store.state.urlImgSize + "?alt=media"
+                // when new Img: 
+                var uploadTask = await storage.ref('rezeptBilder/' + this.form.id).put(this.imgFile)
+                var url
+                await uploadTask.ref.getDownloadURL().then(function(downloadURL) {
+                url =  downloadURL
+                });
+                
+                // insert pixelsize of image to path
+                var pos = url.lastIndexOf(this.form.id.toString()) + this.form.id.toString().length
+                this.form.imgUrl = [url.slice(0, pos), this.$store.state.urlImgSize, url.slice(pos)].join('')
             }else if (this.removeImg){
-                this.form.imgUrl = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize + ".jpg?alt=media"
+                this.form.imgUrl = this.$store.state.ImgDefault
             }
             await db.collection('rezepte').doc(this.form.id).set(this.form)
             this.spinner = true
@@ -190,7 +198,7 @@ export default {
             
         },
         async remove(){
-            await firebase.storage().ref('rezeptBilder/' + this.form.id + "_1280x720").delete().then(function() {
+            await storage.ref('rezeptBilder/' + this.form.id + this.$store.state.urlImgSize).delete().then(function() {
                 console.log("File successfully deleted!");
             }).catch(function(error) {
                 // console.error("Error removing File: ", error);

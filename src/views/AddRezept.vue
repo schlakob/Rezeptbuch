@@ -97,8 +97,9 @@
 </template>
 
 <script>
-import db from './../firebaseInit'
-import firebase from 'firebase'
+import {db} from './../firebase/db'
+import {auth} from './../firebase/auth'
+import {storage} from './../firebase/storage'
 import { validationMixin } from 'vuelidate'
 import {
   required,
@@ -112,10 +113,11 @@ export default {
   data() {
     return {
       spinner: false,
-      imgPreview: this.$store.state.urlImgBase + "1"+ this.$store.state.urlImgSize +".jpg?alt=media",
+      imgPreview: this.$store.state.ImgDefault,
       imgFile: "",
       form: {
         id: "",
+        ersteller: "",
         imgUrl: "",
         titel: "",
         beschreibung: "",
@@ -128,12 +130,12 @@ export default {
   },
   created() {
       this.form.id = (Date.now() + Math.random()).toString().split('.').join("")
+      this.form.ersteller = auth.currentUser.email
   },
   methods: {
     pickedImg(e) {
         if (e[0]) {
           this.imgFile = e[0]
-          console.log(this.imgFile)
           let filename = this.imgFile.name
           if (!filename.lastIndexOf('.' <= 0)) {
               alert('Bitte eine richtige Datei auswählen')
@@ -144,7 +146,7 @@ export default {
           })
           fileReader.readAsDataURL(this.imgFile)
         }else{
-          this.imgPreview = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize +".jpg?alt=media"
+          this.imgPreview = this.$store.state.ImgDefault
         }
         
     },
@@ -165,12 +167,20 @@ export default {
     },
     async save(){
       if (this.imgFile) {
-        await firebase.storage().ref('rezeptBilder/' + this.form.id).put(this.imgFile)
-        this.form.imgUrl = this.$store.state.urlImgBase + this.form.id + this.$store.state.urlImgSize + "?alt=media"
+        var uploadTask = await storage.ref('rezeptBilder/' + this.form.id).put(this.imgFile)
+        var url
+        await uploadTask.ref.getDownloadURL().then(function(downloadURL) {
+          url =  downloadURL
+        });
+        
+        var pos = url.lastIndexOf(this.form.id.toString()) + this.form.id.toString().length
+        this.form.imgUrl = [url.slice(0, pos), this.$store.state.urlImgSize, url.slice(pos)].join('')
       }else{
-         this.form.imgUrl = this.$store.state.urlImgBase + "1" + this.$store.state.urlImgSize +".jpg?alt=media"
+         this.form.imgUrl = this.$store.state.ImgDefault
       }
+      
       db.collection('rezepte').doc(this.form.id).set(this.form)
+
       this.spinner = true
       await this.sleep(4000)
       this.spinner = false

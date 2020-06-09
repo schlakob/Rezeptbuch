@@ -19,15 +19,15 @@
             </md-card-header>
           </md-ripple>
         </md-card>
+        
       </div>
-      <div class="md-layout-item"></div>
       <div class="md-layout-item"></div>
     </div>
   </div>
 </template>
 
 <script>
-  import db from './../firebaseInit'
+import {db} from './../firebase/db'
   export default {
     data() {
       return {
@@ -39,8 +39,8 @@
         this.$router.push({name: 'View', params: {id: Rezeptid}})
       }
     },
-    async created() {
-        var snapshot = await db.collection('rezepte').get()
+    async created() {        
+        const snapshot = await db.collection('rezepte').get()
         snapshot.docs.forEach(element => {
           this.rezepte.push(element.data())
         });

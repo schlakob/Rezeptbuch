@@ -7,8 +7,10 @@ import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.min.css'
 import 'vue-material/dist/theme/default.css'
 import "./assets/materialKit.scss";
+import { firestorePlugin } from 'vuefire';
 
 Vue.use(VueMaterial)
+Vue.use(firestorePlugin)
 
 Vue.config.productionTip = false
 
