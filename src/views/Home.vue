@@ -28,6 +28,7 @@
 
 <script>
 import {db} from './../firebase/db'
+import {auth} from './../firebase/auth'
   export default {
     data() {
       return {
@@ -40,7 +41,7 @@ import {db} from './../firebase/db'
       }
     },
     async created() {        
-        const snapshot = await db.collection('rezepte').get()
+        const snapshot = await db.collection('rezepte').where("ersteller", "==", auth.currentUser.email).get()
         snapshot.docs.forEach(element => {
           this.rezepte.push(element.data())
         });

@@ -7,7 +7,7 @@
             <md-button class="md-icon-button" @click="$router.back()" v-if="!(this.$route.name == 'Home') && !(this.$route.name == 'Login')">
               <md-icon>arrow_back</md-icon>
             </md-button>
-            <span class="md-title" style="color: white">Rezeptbuch</span>
+            <span class="md-title" style="color: white">Buchrezept</span>
           </div>
         </md-app-toolbar>
 
