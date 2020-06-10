@@ -47,7 +47,7 @@ export default {
             alert(err.message)
         })
         console.log('Eingeloggt als ' + this.credits.email)
-        this.$router.push({name: "Home"})
+        this.$router.push(this.$route.query.redirect || '/')
       }
   }
 }
