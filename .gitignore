@@ -5,6 +5,7 @@ node_modules
 
 # local env files
 .env.local
+credentials.js
 .env.*.local
 
 # Log files
