@@ -4,6 +4,9 @@
 
     <div class="md-layout md-gutter">
       <div class="md-layout-item md-size-100">
+        <p>Eingeloggt als: {{email}}</p>
+      </div>
+      <div class="md-layout-item md-size-100">
         <md-button class="md-raised md-accent" @click="logout">Logout</md-button>
       </div>
     </div>
@@ -16,10 +19,7 @@ export default {
   name: 'Home',
   data() {
     return {
-        credits: {
-            email: "",
-            password: ""
-        }
+      email: auth.currentUser.email
     };
   },
   methods: {
