@@ -2,10 +2,10 @@
     "name":"Buchrezept",
     "short_name":"Buchrezept",
     "lang": "de-DE",
-    "theme_color":"#528E5C",
+    "theme_color":"#997538",
     "start_url":".",
     "display":"standalone",
-    "background_color":"#528E5C",
+    "background_color":"#997538",
     "icons":[
        {
           "src":"./img/icons/192.png",
