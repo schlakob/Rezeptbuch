@@ -7,11 +7,15 @@
             <md-button class="md-icon-button" @click="$router.back()" v-if="!(this.$route.name == 'Home') && !(this.$route.name == 'Login')">
               <md-icon>arrow_back</md-icon>
             </md-button>
+            
             <span class="md-title" style="color: white">Buchrezept</span>
+            <md-button class="md-icon-button" style="position: fixed; right: 0" @click="reloadPage" >
+              <md-icon>refresh</md-icon>
+            </md-button>
           </div>
         </md-app-toolbar>
 
-        <md-app-content>
+        <md-app-content style="margin-bottom: 60px;">
           <router-view/>
         </md-app-content>
       </md-app>
@@ -26,6 +30,21 @@
   </div>
 </template>
 
+
+<script>
+  export default {
+    data() {
+      return {
+      };
+    },
+    methods: {
+      reloadPage(){
+        window.location.reload()
+      }
+    }
+  };
+</script>
+
 <style lang="scss" scoped>
   .phone-viewport {
     // align-items: flex-end;
@@ -34,15 +53,11 @@
     bottom: 0;
     width: 100%;
   }
-
-  .page-container {
-    margin-bottom: 60px;
-  }
 </style>
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Quicksand', 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
