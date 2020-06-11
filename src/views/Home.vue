@@ -2,6 +2,12 @@
   <div>
     <p class="md-title">Alle deine Rezepte:</p>
     <div class="md-layout md-gutter">
+      <div class="md-layout-item md-size-100" >
+        <md-field>
+            <label for="search">Suche</label>
+            <md-input name="search" id="search" v-model="searchdata" @keydown="search()" @change="search()"/>
+        </md-field>
+      </div>
       <div class="md-layout-item md-small-size-100 md-medium-size-50 md-large-size-33" v-for="(rezept, index) in rezepte" :key="index" style="margin-bottom: 10px; margin-top: 10px" @click="cardSelect(rezept.id)">
         <md-card md-with-hover>
           <md-ripple>
@@ -32,12 +38,23 @@ import {auth} from './../firebase/auth'
   export default {
     data() {
       return {
-        rezepte: []
+        searchdata: "",
+        rezepte: [],
+        rezepteRefference: []
       };
     },
     methods: {
       cardSelect(Rezeptid) {
         this.$router.push({name: 'View', params: {id: Rezeptid}})
+      },
+      search(){
+        var newRezeptliste = []
+        this.rezepteRefference.forEach(rezept => {
+          if (rezept.titel.includes(this.searchdata) || !this.searchdata) {
+            newRezeptliste.push(rezept)
+          }
+        })
+        this.rezepte = newRezeptliste
       }
     },
     async created() {        
@@ -45,6 +62,7 @@ import {auth} from './../firebase/auth'
         snapshot.docs.forEach(element => {
           this.rezepte.push(element.data())
         });
+        this.rezepteRefference = this.rezepte
     }
   };
 </script>
