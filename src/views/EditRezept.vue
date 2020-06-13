@@ -80,7 +80,17 @@
                         <span class="md-error" v-if="!$v.form.beschreibung.maxLength">Die Beschreibung ist zu lange</span>
                     </md-field>
                 </div>
-
+                <div class="md-layout-item md-size-100">
+                    <md-field :class="getValidationClass('rezeptTyp')">
+                      <label for="rezeptTyp">Rezeptart:</label>
+                      <md-select v-model="form.rezeptTyp" name="rezeptTyp" multiple>
+                          <div v-for="(rezeptTyp, index) in $store.state.rezeptTypen" :key="index" style="margin-left: 2%">
+                              <md-option :value="rezeptTyp">{{rezeptTyp}}</md-option>
+                          </div>
+                          <span class="md-error" v-if="!$v.form.rezeptTyp.required">Bitte Rezeptart angeben</span>
+                      </md-select>
+                    </md-field>
+                </div>
                 <div class="md-layout-item md-size-100">
                     <md-progress-spinner md-mode="indeterminate" v-if="spinner"></md-progress-spinner>
                 </div>
@@ -238,6 +248,9 @@ export default {
                 maxLength: maxLength(1000)
             },
             dauer: {
+                required
+            },
+            rezeptTyp: {
                 required
             }
         }

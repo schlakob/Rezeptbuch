@@ -24,6 +24,9 @@
         <p class="md-subheading">Beschreibung:</p>
         <p>{{rezept.beschreibung}}</p>
       </div>
+      <div class="md-layout-item md-size-100">
+        <md-chip v-for="(rezeptTyp, index) in rezept.rezeptTyp" :key="index">{{rezeptTyp}}</md-chip>
+      </div>
     </div>
     <md-button class="md-fab md-primary md-plain" @click="edit()">
         <md-icon>edit</md-icon>
@@ -42,11 +45,21 @@ import {db} from './../firebase/db'
     methods: {
       edit() {
         this.$router.push({name: 'Edit', params: {id: this.rezept.id}})
+      },
+      async update() {
+        var someDiff = false
+        if (!Object.keys(this.rezept).includes("rezeptTyp")) {
+          console.log(Object.keys(this.rezept).includes("rezeptTyp") + " " + "rezeptTyp")
+          this.$set(this.rezept, "rezeptTyp", [])
+          someDiff = true
+        }
+        await db.collection('rezepte').doc(this.rezept.id).set(this.rezept)
       }
     },
     async created() {
         var snapshot = await db.collection('rezepte').doc(this.$route.params.id).get()
         this.rezept = snapshot.data()
+        this.update()
     }
   };
 </script>
