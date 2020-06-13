@@ -2,13 +2,30 @@
   <div>
     <p class="md-title">Alle deine Rezepte:</p>
     <div class="md-layout md-gutter">
-      <div class="md-layout-item md-size-100" >
-        <md-field>
-            <label for="search">Suche</label>
-            <md-input name="search" id="search" v-model="searchdata" @keydown="search()" @change="search()"/>
-        </md-field>
+      <div class="md-layout-item">
+          <md-button class="md-primary md-raised" @click="toggleFilter">
+              <md-icon>filter_list</md-icon>
+          </md-button>
       </div>
-      <div class="md-layout-item md-small-size-100 md-medium-size-50 md-large-size-33" v-for="(rezept, index) in rezepte" :key="index" style="margin-bottom: 10px; margin-top: 10px" @click="cardSelect(rezept.id)">
+      <div v-if="showFilter" class="md-layout-item md-size-100 md-layout md-gutter" >
+        <div class="md-layout-item md-size-100">
+          <md-field>
+              <label for="search">Suche</label>
+              <md-input name="search" id="search" v-model="searchdata"/>
+          </md-field>
+        </div>
+        <div class="md-layout-item md-size-100">
+            <md-field>
+              <label for="rezeptTyp">Rezeptart:</label>
+              <md-select v-model="filterdata" name="rezeptTyp" multiple>
+                  <div v-for="(rezeptTyp, index) in $store.state.rezeptTypen" :key="index" style="margin-left: 2%">
+                      <md-option :value="rezeptTyp" selected>{{rezeptTyp}}</md-option>
+                  </div>
+              </md-select>
+            </md-field>
+        </div>
+      </div>
+      <div class="md-layout-item md-small-size-100 md-medium-size-50 md-large-size-33" v-for="(rezept, index) in filteredList" :key="index" style="margin-bottom: 10px; margin-top: 10px" @click="cardSelect(rezept.id)">
         <md-card md-with-hover>
           <md-ripple>
             
@@ -23,6 +40,9 @@
               <div class="md-title" >{{rezept.titel}}</div>
               <div class="md-subhead"><md-icon>watch_later</md-icon>{{rezept.dauer || 0}} min</div>
             </md-card-header>
+            <md-card-content>
+              <md-chip v-for="(rezeptTyp, index) in rezept.rezeptTyp" :key="index">{{rezeptTyp}}</md-chip>
+            </md-card-content>
           </md-ripple>
         </md-card>
         
@@ -38,23 +58,22 @@ import {auth} from './../firebase/auth'
   export default {
     data() {
       return {
+        showFilter: false,
         searchdata: "",
-        rezepte: [],
-        rezepteRefference: []
+        filterdata: this.$store.state.rezeptTypen,
+        rezepte: []
       };
     },
     methods: {
       cardSelect(Rezeptid) {
         this.$router.push({name: 'View', params: {id: Rezeptid}})
       },
-      search(){
-        var newRezeptliste = []
-        this.rezepteRefference.forEach(rezept => {
-          if (rezept.titel.includes(this.searchdata) || !this.searchdata) {
-            newRezeptliste.push(rezept)
-          }
-        })
-        this.rezepte = newRezeptliste
+      toggleFilter() {
+        if (this.showFilter) {
+          this.showFilter = false
+        }else{
+          this.showFilter = true
+        }
       }
     },
     async created() {        
@@ -62,7 +81,19 @@ import {auth} from './../firebase/auth'
         snapshot.docs.forEach(element => {
           this.rezepte.push(element.data())
         });
-        this.rezepteRefference = this.rezepte
+    },
+    computed: {
+      filteredList() {
+        return this.rezepte.filter(rezept => {
+          var showbyType = false;
+          this.filterdata.forEach(element => {
+            if(rezept.rezeptTyp.includes(element)){
+              showbyType = true
+            }
+          })
+          return rezept.titel.toLowerCase().includes(this.searchdata.toLowerCase()) && showbyType
+        })
+      }
     }
   };
 </script>
