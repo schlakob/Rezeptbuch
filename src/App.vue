@@ -20,6 +20,7 @@
         </md-app-content>
       </md-app>
     </div>
+    
     <div class="phone-viewport">
       <md-bottom-bar md-sync-route md-mode="shift">
         <md-bottom-bar-item style="max-width: none" to="/" exact md-icon="home"></md-bottom-bar-item>
