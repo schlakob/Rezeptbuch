@@ -24,6 +24,7 @@
       <md-bottom-bar md-sync-route md-mode="shift">
         <md-bottom-bar-item style="max-width: none" to="/" exact md-icon="home"></md-bottom-bar-item>
         <md-bottom-bar-item style="max-width: none" to="/add" md-icon="add"></md-bottom-bar-item>
+        <md-bottom-bar-item style="max-width: none" to="/random" md-icon="casino"></md-bottom-bar-item>
         <md-bottom-bar-item style="max-width: none" to="/settings" md-icon="settings"></md-bottom-bar-item>
       </md-bottom-bar>
     </div>

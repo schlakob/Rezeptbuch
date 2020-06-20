@@ -40,6 +40,14 @@ Vue.use(VueRouter)
     }
   },
   {
+    path: '/random',
+    name: 'Random',
+    component: () => import('../views/Randomizer.vue'),
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: '/login',
     name: 'Login',
     component: () => import('../views/Login.vue')

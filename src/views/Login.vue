@@ -30,7 +30,7 @@
 <script>
 import {auth} from './../firebase/auth'
 export default {
-  name: 'Home',
+  name: 'Login',
   data() {
     return {
         credits: {

@@ -119,7 +119,7 @@ import {
 } from 'vuelidate/lib/validators'
 
 export default {
-  name: 'Home',
+  name: 'AddRezept',
   mixins: [validationMixin],
   data() {
     return {

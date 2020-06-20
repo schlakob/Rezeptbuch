@@ -16,7 +16,7 @@
 <script>
 import {auth} from './../firebase/auth'
 export default {
-  name: 'Home',
+  name: 'Settings',
   data() {
     return {
       email: auth.currentUser.email
