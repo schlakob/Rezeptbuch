@@ -6,7 +6,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     einheiten: [
-      "g", "kg", "l", "ml", "Stück", "Bündel", "Esslöffel", "Teelöffel", "Packung/en", "Tasse/n"
+      "g", "kg", "l", "ml", "Stück","Dose/n (kl.)","Dose/n (gr.)" ,"Bündel", "Esslöffel", "Teelöffel", "Packung/en", "Tasse/n", "Bündel"
     ],
     rezeptTypen: [
       "Frühstück", "Vorspeise", "Hauptspeise", "Dessert", "Snack", "Kuchen", "Getränk", "Sonstiges"
