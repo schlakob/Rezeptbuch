@@ -14,7 +14,7 @@
               <md-input name="search" id="search" v-model="searchdata"/>
           </md-field>
         </div>
-        <div class="md-layout-item md-size-100">
+        <div class="md-layout-item md-size-79">
             <md-field>
               <label for="rezeptTyp">Rezeptart:</label>
               <md-select v-model="filterdata" name="rezeptTyp" multiple>
@@ -24,7 +24,12 @@
               </md-select>
             </md-field>
         </div>
+        <md-button class="md-layout-item md-size-20 md-primary md-raised" @click="toggleAll()">
+          All
+        </md-button>
       </div>
+    </div>
+    <div class="md-layout md-gutter">
       <div class="md-layout-item md-small-size-100 md-medium-size-50 md-large-size-33" v-for="(rezept, index) in filteredList" :key="index" style="margin-bottom: 10px; margin-top: 10px" @click="cardSelect(rezept.id)">
         <md-card md-with-hover>
           <md-ripple>
@@ -74,13 +79,31 @@ import {auth} from './../firebase/auth'
         }else{
           this.showFilter = true
         }
+      },
+      sortArray() {
+        this.rezepte.sort(function(a, b) {
+          var keyA = a.titel,
+            keyB = b.titel;
+          // Compare the 2 dates
+          if (keyA < keyB) return -1;
+          if (keyA > keyB) return 1;
+          return 0;
+        })
+      },
+      toggleAll() {
+        if(this.filterdata == this.$store.state.rezeptTypen){
+          this.filterdata = []
+        }else{
+          this.filterdata = this.$store.state.rezeptTypen
+        }
       }
     },
     async created() {        
         const snapshot = await db.collection('rezepte').where("ersteller", "==", auth.currentUser.email).get()
-        snapshot.docs.forEach(element => {
+        await snapshot.docs.forEach(element => {
           this.rezepte.push(element.data())
         });
+        this.sortArray()
     },
     computed: {
       filteredList() {
